@@ -29,6 +29,12 @@ class ValueIterationAgent(ValueEstimationAgent):
     self.values = util.Counter() # A Counter is a dict with default 0
      
     "*** YOUR CODE HERE ***"
+    for i in range(iterations):
+      currentValues = self.values.copy()
+      for state in mdp.getStates():
+        if not self.mdp.isTerminal(state):
+          currentValues[state] = max([self.getQValue(state, action) for action in mdp.getPossibleActions(state)])
+      self.values = currentValues
     
   def getValue(self, state):
     """
@@ -46,7 +52,7 @@ class ValueIterationAgent(ValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return sum([prob * (self.mdp.getReward(state, action, nextState) + (self.discount * self.getValue(nextState))) for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action)])
 
   def getPolicy(self, state):
     """
@@ -57,7 +63,13 @@ class ValueIterationAgent(ValueEstimationAgent):
       terminal state, you should return None.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    actions = self.mdp.getPossibleActions(state)
+    policy = None
+    tempValues = util.Counter()
+    for action in actions:
+      tempValues[action] = self.getQValue(state, action)
+    policy = tempValues.argMax()
+    return policy
 
   def getAction(self, state):
     "Returns the policy at the state (no exploration)."
